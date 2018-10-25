@@ -3,16 +3,15 @@ package common
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/hashicorp/packer/packer"
 )
 
-// BuilderId for the local artifacts
-const BuilderId = "mitchellh.vmware"
-const BuilderIdESX = "mitchellh.vmware-esx"
-
 const (
+	// BuilderId for the local artifacts
+	BuilderId    = "mitchellh.vmware"
+	BuilderIdESX = "mitchellh.vmware-esx"
+
 	ArtifactConfFormat         = "artifact.conf.format"
 	ArtifactConfKeepRegistered = "artifact.conf.keep_registered"
 	ArtifactConfSkipExport     = "artifact.conf.skip_export"
@@ -26,33 +25,6 @@ type artifact struct {
 	dir       string
 	f         []string
 	config    map[string]string
-}
-
-// NewLocalArtifact returns a VMware artifact containing the files
-// in the given directory.
-// NewLocalArtifact returns a VMware artifact containing the files
-// in the given directory.
-func NewLocalArtifact(id string, dir string) (packer.Artifact, error) {
-	files := make([]string, 0, 5)
-	visit := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
-	}
-
-	if err := filepath.Walk(dir, visit); err != nil {
-		return nil, err
-	}
-
-	return &artifact{
-		builderId: id,
-		dir:       dir,
-		f:         files,
-	}, nil
 }
 
 func NewArtifact(vmname string, dir OutputDir, files []string, config map[string]string, esxi bool) (packer.Artifact, error) {

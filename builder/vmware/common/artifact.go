@@ -2,9 +2,9 @@ package common
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
+	"strconv"
 
+	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
 )
 
@@ -52,33 +52,37 @@ func (a *artifact) Destroy() error {
 	return a.dir.RemoveAll()
 }
 
-// NewLocalArtifact wraps NewArtifact and finds the files in the given directory.
-func NewLocalArtifact(vmname string, dir OutputDir, files []string, config map[string]string) (packer.Artifact, error) {
-	visit := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
+func NewArtifact(remoteType string, format string, exportOutputPath string, vmName string, skipExport bool, keepRegistered bool, state multistep.StateBag) (packer.Artifact, error) {
+	var files []string
+	var dir OutputDir
+	var err error
+	if remoteType != "" && format != "" && !skipExport {
+		dir = new(LocalOutputDir)
+		dir.SetOutputDir(exportOutputPath)
+		files, err = dir.ListFiles()
+	} else {
+		files, err = state.Get("dir").(OutputDir).ListFiles()
 	}
-	if err := filepath.Walk(dir.String(), visit); err != nil {
+	if err != nil {
 		return nil, err
 	}
-	return NewArtifact(vmname, dir, files, config, false)
-}
 
-func NewArtifact(vmname string, dir OutputDir, files []string, config map[string]string, esxi bool) (packer.Artifact, error) {
-	builderID := BuilderId
-	if esxi {
-		builderID = BuilderIdESX
+	// Set the proper builder ID
+	builderId := BuilderId
+	if remoteType != "" {
+		builderId = BuilderIdESX
 	}
 
+	config := make(map[string]string)
+	config[ArtifactConfKeepRegistered] = strconv.FormatBool(keepRegistered)
+	config[ArtifactConfFormat] = format
+	config[ArtifactConfSkipExport] = strconv.FormatBool(skipExport)
+
 	return &artifact{
-		builderId: builderID,
-		id:        vmname,
+		builderId: builderId,
+		id:        vmName,
 		dir:       dir,
 		f:         files,
+		config:    config,
 	}, nil
 }

@@ -1,9 +1,8 @@
 package common
 
 import (
-	"testing"
-
 	"github.com/hashicorp/packer/packer"
+	"testing"
 )
 
 func TestLocalArtifact_impl(t *testing.T) {

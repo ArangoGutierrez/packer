@@ -28,12 +28,10 @@ type Config struct {
 	vmwcommon.VMXConfig      `mapstructure:",squash"`
 	vmwcommon.ExportConfig   `mapstructure:",squash"`
 
-	Linked         bool     `mapstructure:"linked"`
-	RemoteType     string   `mapstructure:"remote_type"`
-	SkipCompaction bool     `mapstructure:"skip_compaction"`
-	BootCommand    []string `mapstructure:"boot_command"`
-	SourcePath     string   `mapstructure:"source_path"`
-	VMName         string   `mapstructure:"vm_name"`
+	Linked     bool   `mapstructure:"linked"`
+	RemoteType string `mapstructure:"remote_type"`
+	SourcePath string `mapstructure:"source_path"`
+	VMName     string `mapstructure:"vm_name"`
 
 	CommConfig communicator.Config `mapstructure:",squash"`
 

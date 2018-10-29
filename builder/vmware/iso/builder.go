@@ -69,8 +69,6 @@ type Config struct {
 	VMXDiskTemplatePath string `mapstructure:"vmx_disk_template_path"`
 	VMXTemplatePath     string `mapstructure:"vmx_template_path"`
 
-	CommConfig communicator.Config `mapstructure:",squash"`
-
 	ctx interpolate.Context
 }
 
@@ -226,7 +224,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 }
 
 func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
-	driver, err := vmwcommon.NewDriver(&b.config.DriverConfig, &b.config.SSHConfig, &b.config.CommConfig, b.config.VMName)
+	driver, err := vmwcommon.NewDriver(&b.config.DriverConfig, &b.config.SSHConfig, b.config.VMName)
 	if err != nil {
 		return nil, fmt.Errorf("Failed creating VMware driver: %s", err)
 	}
